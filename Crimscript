@@ -1,0 +1,1551 @@
+local StarterGui = game:GetService("StarterGui")
+StarterGui:SetCore("SendNotification", {
+	Title = 'Made by Crim scripts',
+	Text = 'discord copyed to clipboard https://discord.gg/p8G47vgw',
+	Duration = 40.1,
+	setclipboard("https://discord.gg/p8G47vgw")
+}
+)
+wait()
+local ScreenGui = Instance.new("ScreenGui")
+local BackFrame = Instance.new("Frame")
+local Frame = Instance.new("Frame")
+local LoginKey = Instance.new("TextBox")
+local Confirm = Instance.new("TextButton")
+local Predator = Instance.new("TextLabel")
+local Frame_2 = Instance.new("Frame")
+
+
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+BackFrame.Name = "BackFrame"
+BackFrame.Parent = ScreenGui
+BackFrame.Active = true
+BackFrame.Draggable = true
+BackFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+BackFrame.BorderSizePixel = 0
+BackFrame.Position = UDim2.new(0.330855012, 0, 0.346613556, 0)
+BackFrame.Size = UDim2.new(0, 274, 0, 155)
+
+Frame.Parent = BackFrame
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0.0390198417, 0, 0.0637836084, 0)
+Frame.Size = UDim2.new(0, 251, 0, 135)
+
+LoginKey.Name = "Confirm if gay"
+LoginKey.Parent = BackFrame
+LoginKey.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+LoginKey.BorderSizePixel = 0
+LoginKey.Position = UDim2.new(0.0218978096, 0, 0.418160111, 0)
+LoginKey.Size = UDim2.new(0, 261, 0, 24)
+LoginKey.Font = Enum.Font.Ubuntu
+LoginKey.PlaceholderText = ""
+LoginKey.Text = ""
+LoginKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoginKey.TextSize = 14.000
+
+Confirm.Name = "Confirm if gay"
+Confirm.Parent = BackFrame
+Confirm.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Confirm.BorderSizePixel = 0
+Confirm.Position = UDim2.new(0.354014605, 0, 0.688668311, 0)
+Confirm.Size = UDim2.new(0, 77, 0, 18)
+Confirm.Font = Enum.Font.Ubuntu
+Confirm.Text = "Click Confirm if gay"
+Confirm.TextColor3 = Color3.fromRGB(255, 255, 255)
+Confirm.TextSize = 14.000
+Confirm.MouseButton1Down:connect(function()
+	if LoginKey.Text == "" then
+	    wait(0.5)
+	    LoginKey.Text = "AYO NIGGA WHAT??!!"
+	    wait(2.5)
+	    LoginKey.Text = "WHY DID NIGGA CLICK AYO!!!"
+	    wait(1.5)
+	    LoginKey.Text = "I GOT YOUR IP EZ HAHA GAY"
+	    wait(2)
+	    LoginKey.Text = "IM GONNA DOX U AND CALL 911"
+	    wait(2)
+		BackFrame.Visible = false
+getgenv().AimPart = "Torso" -- For R15 Games: {UpperTorso, LowerTorso, HumanoidRootPart, Head} | For R6 Games: {Head, Torso, HumanoidRootPart}
+getgenv().AimlockToggleKey = "Z" -- Toggles Aimbot On/Off 
+getgenv().AimRadius = 100 -- How far away from someones character you want to lock on at
+getgenv().ThirdPerson = false -- Locking onto someone in your Third Person POV
+getgenv().FirstPerson = true -- Locking onto someone in your First Person POV
+getgenv().TeamCheck = false -- Check if Target is on your Team (True means it wont lock onto your teamates, false is vice versa) (Set it to false if there are no teams)
+getgenv().PredictMovement = true -- Predicts if they are moving in fast velocity (like jumping) so the aimbot will go a bit faster to match their speed 
+getgenv().PredictionVelocity = 15 -- The speed of the PredictMovement feature 
+
+getgenv().CiazwareUniversalAimbotLoadingTime = tick()
+if CiazwareUniversalAimbotLoaded == true then
+    return 
+end
+
+local Players, Uis, RService, SGui = game:GetService"Players", game:GetService"UserInputService", game:GetService"RunService", game:GetService"StarterGui";
+local Client, Mouse, Camera, CF, RNew, Vec3, Vec2 = Players.LocalPlayer, Players.LocalPlayer:GetMouse(), workspace.CurrentCamera, CFrame.new, Ray.new, Vector3.new, Vector2.new;
+local Aimlock, MousePressed, CanNotify = true, false, false;
+local AimlockTarget;
+getgenv().CiazwareUniversalAimbotLoaded = true
+
+getgenv().SeparateNotify = function(title, text, icon, time) 
+    SGui:SetCore("SendNotification",{
+        Title = title;
+        Text = text;
+        Icon = "rbxassetid://6647838801";
+        Duration = time;
+    })
+end
+
+getgenv().Notify = function(title, text, icon, time)
+    if CanNotify == true then 
+        if not time or not type(time) == "number" then time = 3 end
+        SGui:SetCore("SendNotification",{
+            Title = title;
+            Text = text;
+            Icon = "rbxassetid://6647838801";
+            Duration = time;
+        }) 
+    end
+end
+
+getgenv().WorldToViewportPoint = function(P)
+    return Camera:WorldToViewportPoint(P)
+end
+
+getgenv().WorldToScreenPoint = function(P)
+    return Camera.WorldToScreenPoint(Camera, P)
+end
+
+getgenv().GetObscuringObjects = function(T)
+    if T and T:FindFirstChild(getgenv().AimPart) and Client and Client.Character:FindFirstChild("Torso") then 
+        local RayPos = workspace:FindPartOnRay(RNew(
+            T[getgenv().AimPart].Position, Client.Character.Head.Position)
+        )
+        if RayPos then return RayPos:IsDescendantOf(T) end
+    end
+end
+
+getgenv().GetNearestTarget = function()
+    -- Credits for this part idk who made it
+    local players = {}
+    local PLAYER_HOLD  = {}
+    local DISTANCES = {}
+    for i, v in pairs(Players:GetPlayers()) do
+        if v ~= Client then
+            table.insert(players, v)
+        end
+    end
+    for i, v in pairs(players) do
+        if v.Character ~= nil then
+            local AIM = v.Character:FindFirstChild("Head")
+            if getgenv().TeamCheck == true and v.Team ~= Client.Team then
+                local DISTANCE = (v.Character:FindFirstChild("Head").Position - game.Workspace.CurrentCamera.CFrame.p).magnitude
+                local RAY = Ray.new(game.Workspace.CurrentCamera.CFrame.p, (Mouse.Hit.p - game.Workspace.CurrentCamera.CFrame.p).unit * DISTANCE)
+                local HIT,POS = game.Workspace:FindPartOnRay(RAY, game.Workspace)
+                local DIFF = math.floor((POS - AIM.Position).magnitude)
+                PLAYER_HOLD[v.Name .. i] = {}
+                PLAYER_HOLD[v.Name .. i].dist= DISTANCE
+                PLAYER_HOLD[v.Name .. i].plr = v
+                PLAYER_HOLD[v.Name .. i].diff = DIFF
+                table.insert(DISTANCES, DIFF)
+            elseif getgenv().TeamCheck == false and v.Team == Client.Team then 
+                local DISTANCE = (v.Character:FindFirstChild("Head").Position - game.Workspace.CurrentCamera.CFrame.p).magnitude
+                local RAY = Ray.new(game.Workspace.CurrentCamera.CFrame.p, (Mouse.Hit.p - game.Workspace.CurrentCamera.CFrame.p).unit * DISTANCE)
+                local HIT,POS = game.Workspace:FindPartOnRay(RAY, game.Workspace)
+                local DIFF = math.floor((POS - AIM.Position).magnitude)
+                PLAYER_HOLD[v.Name .. i] = {}
+                PLAYER_HOLD[v.Name .. i].dist= DISTANCE
+                PLAYER_HOLD[v.Name .. i].plr = v
+                PLAYER_HOLD[v.Name .. i].diff = DIFF
+                table.insert(DISTANCES, DIFF)
+            end
+        end
+    end
+    
+    if unpack(DISTANCES) == nil then
+        return nil
+    end
+    
+    local L_DISTANCE = math.floor(math.min(unpack(DISTANCES)))
+    if L_DISTANCE > getgenv().AimRadius then
+        return nil
+    end
+    
+    for i, v in pairs(PLAYER_HOLD) do
+        if v.diff == L_DISTANCE then
+            return v.plr
+        end
+    end
+    return nil
+end
+
+Uis.InputBegan:Connect(function(Key)
+    if not (Uis:GetFocusedTextBox()) then 
+        if Key.UserInputType == Enum.UserInputType.MouseButton2 then 
+            pcall(function()
+                if MousePressed ~= true then MousePressed = true end 
+                local Target;Target = GetNearestTarget()
+                if Target ~= nil then 
+                    AimlockTarget = Target
+                end
+            end)
+        end
+        if Key.KeyCode == Enum.KeyCode[AimlockToggleKey] then 
+            Aimlock = not Aimlock
+        end
+    end
+end)
+Uis.InputEnded:Connect(function(Key)
+    if not (Uis:GetFocusedTextBox()) then 
+        if Key.UserInputType == Enum.UserInputType.MouseButton2 then 
+            if AimlockTarget ~= nil then AimlockTarget = nil end
+            if MousePressed ~= false then 
+                MousePressed = false 
+            end
+        end
+    end
+end)
+
+RService.RenderStepped:Connect(function()
+    if getgenv().FirstPerson == true and getgenv().ThirdPerson == false then 
+        if (Camera.Focus.p - Camera.CoordinateFrame.p).Magnitude <= 1 then 
+            CanNotify = true 
+        else 
+            CanNotify = false 
+        end
+    elseif getgenv().ThirdPerson == true and getgenv().FirstPerson == false then 
+        if (Camera.Focus.p - Camera.CoordinateFrame.p).Magnitude > 1 then 
+            CanNotify = true 
+        else 
+            CanNotify = false 
+        end
+    end
+    if Aimlock == true and MousePressed == true then 
+        if AimlockTarget and AimlockTarget.Character and AimlockTarget.Character:FindFirstChild(getgenv().AimPart) then 
+            if getgenv().FirstPerson == true then
+                if CanNotify == true then
+                    if getgenv().PredictMovement == true then 
+                        Camera.CFrame = CF(Camera.CFrame.p, AimlockTarget.Character[getgenv().AimPart].Position + AimlockTarget.Character[getgenv().AimPart].Velocity/PredictionVelocity)
+                    elseif getgenv().PredictMovement == false then 
+                        Camera.CFrame = CF(Camera.CFrame.p, AimlockTarget.Character[getgenv().AimPart].Position)
+                    end
+                end
+            elseif getgenv().ThirdPerson == true then 
+                if CanNotify == true then
+                    if getgenv().PredictMovement == true then 
+                        Camera.CFrame = CF(Camera.CFrame.p, AimlockTarget.Character[getgenv().AimPart].Position + AimlockTarget.Character[getgenv().AimPart].Velocity/PredictionVelocity)
+                    elseif getgenv().PredictMovement == false then 
+                        Camera.CFrame = CF(Camera.CFrame.p, AimlockTarget.Character[getgenv().AimPart].Position)
+                    end
+                end 
+            end
+        end
+    end
+end)
+
+SeparateNotify("CRIM SCRIPTS", "Key = Z NIGGUS Toggle: "..string.format("Credits To Jap For The Help", tostring(tick() - CiazwareUniversalAimbotLoadingTime)), "", 12)
+
+local clickstatus = 0
+local inputService = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+_G.Size = Vector3.new(4,4,4)
+_G.scallingFactor = 6000
+_G.HBEKey = "T"
+
+local names = {}
+names[1] = Drawing.new("Text") 
+names[1].Size = 20
+names[1].Center = true
+names[1].Position = Vector2.new(0,0)
+names[1].Visible = false
+names[1].Color = Color3.new(1,1,1)
+
+local NameAmount = 1
+local NameAmount2 = 0
+
+local trash = {}
+trash[1] = Drawing.new("Text") 
+trash[1].Size = 15
+trash[1].Center = true
+trash[1].Position = Vector2.new(0,0)
+trash[1].Visible = false
+trash[1].Color = Color3.new(0,1,0)
+
+local TrashAmount = 1
+local TrashAmount2 = 0
+
+local CashR = {}
+CashR[1] = Drawing.new("Text")
+CashR[1].Size = 20
+CashR[1].Center = true
+CashR[1].Position = Vector2.new(0,0)
+CashR[1].Visible = false
+CashR[1].Color = Color3.new(1,1,1)
+
+local CashRegisterAmount = 1
+local CashRegisterAmount2 = 0
+
+local LocalMouse = game.Players.LocalPlayer:GetMouse()
+
+_G.distToMove = 5
+_G.speed = 10
+
+local MouseSquare = Drawing.new("Square")
+MouseSquare.Size = Vector2.new(2,2)
+MouseSquare.Position = Vector2.new(0,0)
+MouseSquare.Filled = true
+MouseSquare.Color = Color3.new(1,1,1)
+MouseSquare.Visible = true
+
+local LPlayer = game.Players.LocalPlayer
+repeat wait(0.001) until(LPlayer.Character)
+local DefHeadSize = LPlayer.Character:WaitForChild("Head").Size
+
+local cam = workspace.CurrentCamera
+
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+local whitelist = {
+	1282754163,
+	game.Players.LocalPlayer.UserId,
+}
+local CreditsTable = {
+	" Youtube got banned ;< ";
+	" Remember RVVZ Likes Kids";
+	" Created By Raver & Exotic";
+	" Enjoy Skidding 卐 卍";
+}
+
+local mt = getrawmetatable(game)
+local oldIndex = mt.__index
+local oldNamecall = mt.__namecall
+
+setreadonly(mt,false)
+
+mt.__namecall = newcclosure(function(tab,...)
+    local args = {...}
+    if(_G.noFall and getnamecallmethod()=="FireServer" and tab.Name=="__DFfDD")then
+        return
+    end
+    return oldNamecall(tab, unpack(args))
+end)
+
+mt.__index = newcclosure(function(tab,key)
+
+	if(checkcaller() and key =="isSelected")then
+		return (oldIndex(tab,"BackgroundColor3") == Color3.new(0,1,0))
+	end
+
+	return oldIndex(tab,key)    
+end)
+
+local player = game.Players.LocalPlayer
+local Criminality = Instance.new("ScreenGui")
+syn.protect_gui(Criminality)
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("Frame")
+local TextLabel = Instance.new("TextLabel")
+local Cheats = Instance.new("TextButton")
+local Credit = Instance.new("TextButton")
+local TextButton = Instance.new("TextButton")
+local Credits = Instance.new("Frame")
+local CreditOne = Instance.new("TextLabel")
+local CreditOne_2 = Instance.new("TextLabel")
+local CreditOne_3 = Instance.new("TextLabel")
+local CreditOne_4 = Instance.new("TextLabel")
+local AllCheats = Instance.new("ScrollingFrame")
+local CheatsFrame = Instance.new("Frame")
+local Infstamina = Instance.new("TextLabel")
+local Desc = Instance.new("TextLabel")
+local ESP = Instance.new("TextLabel")
+local Desc_2 = Instance.new("TextLabel")
+local Speed = Instance.new("TextLabel")
+local Desc_3 = Instance.new("TextLabel")
+local FastPickup = Instance.new("TextLabel")
+local Desc_4 = Instance.new("TextLabel")
+local NoRecoil = Instance.new("TextLabel")
+local Desc_5 = Instance.new("TextLabel")
+local Desc_11 = Instance.new("TextLabel")
+local Desc_10 = Instance.new("TextLabel")
+local ESP_2 = Instance.new("TextLabel")
+local Desc_6 = Instance.new("TextLabel")
+local ComingSoon1_2 = Instance.new("TextButton")
+local ComingSoon2_2 = Instance.new("TextButton")
+local Fullbright_3 = Instance.new("TextButton")
+Fullbright_3.MouseButton1Click:Connect(function()
+	Fullbright_3.BackgroundColor3 = Fullbright_3.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local ChatLogger = Instance.new("TextButton")
+ChatLogger.MouseButton1Click:Connect(function()
+	ChatLogger.BackgroundColor3 = ChatLogger.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local Fullbright = Instance.new("TextLabel")
+local Fullbright_2 = Instance.new("TextLabel")
+local ComingSoon1 = Instance.new("TextLabel")
+local ComingSoon2 = Instance.new("TextLabel")
+local Desc_13 = Instance.new("TextLabel")
+local Desc_12 = Instance.new("TextLabel")
+local ESP_3 = Instance.new("TextLabel")
+local Desc_7 = Instance.new("TextLabel")
+local ESP_4 = Instance.new("TextLabel")
+local Desc_8 = Instance.new("TextLabel")
+local PlayerCashESP = Instance.new("TextLabel")
+local Desc_9 = Instance.new("TextLabel")
+local ToggleFrame = Instance.new("Frame")
+local Infstamina_2 = Instance.new("TextButton")
+Infstamina_2.MouseButton1Click:Connect(function()
+	Infstamina_2.BackgroundColor3 = Infstamina_2.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local ESP_5 = Instance.new("TextButton")
+ESP_5.MouseButton1Click:Connect(function()
+	ESP_5.BackgroundColor3 = ESP_5.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local Speed_2 = Instance.new("TextButton")
+Speed_2.MouseButton1Click:Connect(function()
+	Speed_2.BackgroundColor3 = Speed_2.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local FastPickup_2 = Instance.new("TextButton")
+FastPickup_2.MouseButton1Click:Connect(function()
+	FastPickup_2.BackgroundColor3 = FastPickup_2.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local NoRecoil_2 = Instance.new("TextButton")
+NoRecoil_2.MouseButton1Click:Connect(function()
+	NoRecoil_2.BackgroundColor3 = NoRecoil_2.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local HBE = Instance.new("TextButton")
+HBE.MouseButton1Click:Connect(function()
+	HBE.BackgroundColor3 = HBE.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local ScrapESP = Instance.new("TextButton")
+ScrapESP.MouseButton1Click:Connect(function()
+	ScrapESP.BackgroundColor3 = ScrapESP.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local SafeESP = Instance.new("TextButton")
+SafeESP.MouseButton1Click:Connect(function()
+	SafeESP.BackgroundColor3 = SafeESP.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local cashESP = Instance.new("TextButton")
+cashESP.MouseButton1Click:Connect(function()
+	cashESP.BackgroundColor3 = cashESP.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+end)
+local TextButton_2 = Instance.new("TextButton")
+
+
+
+Criminality.Name = "Criminality"
+Criminality.Parent = game.CoreGui
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = Criminality
+MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.147218451, 0, 0.316436261, 0)
+MainFrame.Size = UDim2.new(0, 307, 0, 361)
+MainFrame.Active = true
+MainFrame.Visible = false
+MainFrame.Draggable = true
+local insertMain = Instance.new("UICorner", MainFrame)
+insertMain.CornerRadius = UDim.new(0,8)
+
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundColor3 = Color3.fromRGB(44, 44, 44)
+Title.Size = UDim2.new(0, 307, 0, 47)
+local insertTitle = Instance.new("UICorner", Title)
+insertTitle.CornerRadius = UDim.new(0,8)
+
+TextLabel.Parent = Title
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1.000
+TextLabel.Size = UDim2.new(0, 307, 0, 21)
+TextLabel.Font = Enum.Font.GothamBlack
+TextLabel.Text = "卐 卍Crim Script卐 卍"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextSize = 23.000
+TextLabel.TextWrapped = true
+
+Cheats.Name = "Cheats"
+Cheats.Parent = Title
+Cheats.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+Cheats.Position = UDim2.new(0.061348483, 0, 0.574468076, 0)
+Cheats.Size = UDim2.new(0, 117, 0, 20)
+Cheats.Font = Enum.Font.GothamBlack
+Cheats.Text = "Cheats"
+Cheats.TextColor3 = Color3.fromRGB(255, 255, 255)
+Cheats.TextScaled = true
+Cheats.TextSize = 14.000
+Cheats.TextWrapped = true
+local insertCheats = Instance.new("UICorner", Cheats)
+insertCheats.CornerRadius = UDim.new(0,4)
+Cheats.MouseButton1Click:Connect(function()
+	AllCheats.Visible = true
+	Credits.Visible = false
+end)
+
+Credit.Name = "Credit"
+Credit.Parent = Title
+Credit.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+Credit.Position = UDim2.new(0.533661187, 0, 0.574468076, 0)
+Credit.Size = UDim2.new(0, 117, 0, 20)
+Credit.Font = Enum.Font.GothamBlack
+Credit.Text = "Credits"
+Credit.TextColor3 = Color3.fromRGB(255, 255, 255)
+Credit.TextScaled = true
+Credit.TextSize = 14.000
+Credit.TextWrapped = true
+local insertCredit = Instance.new("UICorner", Credit)
+insertCredit.CornerRadius = UDim.new(0,4)
+Credit.MouseButton1Click:Connect(function()
+	AllCheats.Visible = false
+	Credits.Visible = true
+end)
+
+ComingSoon1_2.Name = "ComingSoon1"
+ComingSoon1_2.Parent = ToggleFrame
+ComingSoon1_2.BackgroundColor3 = Color3.new(1, 0, 0)
+ComingSoon1_2.Position = UDim2.new(0.244301349, 0, 0.813258052, 0)
+ComingSoon1_2.Size = UDim2.new(0, 35, 0, 35)
+ComingSoon1_2.Font = Enum.Font.SourceSans
+ComingSoon1_2.Text = ""
+ComingSoon1_2.TextColor3 = Color3.new(0, 0, 0)
+ComingSoon1_2.TextSize = 14
+local insertCredit59 = Instance.new("UICorner", ComingSoon1_2)
+insertCredit.CornerRadius = UDim.new(0,4)
+
+Fullbright.Name = "Fullbright"
+Fullbright.Parent = CheatsFrame
+Fullbright.BackgroundColor3 = Color3.new(0.309804, 0.309804, 0.309804)
+Fullbright.BackgroundTransparency = 1
+Fullbright.BorderSizePixel = 0
+Fullbright.Position = UDim2.new(0.237785012, 0, 0.527092099, 0)
+Fullbright.Size = UDim2.new(0, 207, 0, 41)
+Fullbright.Font = Enum.Font.GothamBlack
+Fullbright.Text = "Fullbright"
+Fullbright.TextColor3 = Color3.new(1, 1, 1)
+Fullbright.TextSize = 20
+Fullbright.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_12.Name = "Desc"
+Desc_12.Parent = Fullbright
+Desc_12.BackgroundColor3 = Color3.new(1, 1, 1)
+Desc_12.BackgroundTransparency = 1
+Desc_12.Position = UDim2.new(0, 0, 0.634146333, 0)
+Desc_12.Size = UDim2.new(0, 233, 0, 15)
+Desc_12.Font = Enum.Font.GothamBlack
+Desc_12.Text = "Changes Brightness From Distance\n"
+Desc_12.TextColor3 = Color3.new(0.639216, 0.639216, 0.639216)
+Desc_12.TextSize = 14
+Desc_12.TextWrapped = true
+Desc_12.TextXAlignment = Enum.TextXAlignment.Left
+
+Fullbright_3.Name = "Fullbright"
+Fullbright_3.Parent = ToggleFrame
+Fullbright_3.BackgroundColor3 = Color3.new(1, 0, 0)
+Fullbright_3.Position = UDim2.new(0.244301349, 0, 1.07777417, 0)
+Fullbright_3.Size = UDim2.new(0, 35, 0, 35)
+Fullbright_3.Font = Enum.Font.SourceSans
+Fullbright_3.Text = ""
+Fullbright_3.TextColor3 = Color3.new(0, 0, 0)
+Fullbright_3.TextSize = 14
+local insertCredit58 = Instance.new("UICorner", Fullbright_3)
+insertCredit.CornerRadius = UDim.new(0,4)
+
+ChatLogger.Name = "Fullbright"
+ChatLogger.Parent = ToggleFrame
+ChatLogger.BackgroundColor3 = Color3.new(1, 0, 0)
+ChatLogger.Position = UDim2.new(0.244301349, 0, 1.21003222, 0)
+ChatLogger.Size = UDim2.new(0, 35, 0, 35)
+ChatLogger.Font = Enum.Font.SourceSans
+ChatLogger.Text = ""
+ChatLogger.TextColor3 = Color3.new(0, 0, 0)
+ChatLogger.TextSize = 14
+local insertCredit57 = Instance.new("UICorner", ChatLogger)
+insertCredit.CornerRadius = UDim.new(0,4)
+
+Fullbright_2.Name = "Fullbright"
+Fullbright_2.Parent = CheatsFrame
+Fullbright_2.BackgroundColor3 = Color3.new(0.309804, 0.309804, 0.309804)
+Fullbright_2.BackgroundTransparency = 1
+Fullbright_2.BorderSizePixel = 0
+Fullbright_2.Position = UDim2.new(0.237785012, 0, 0.609092116, 0)
+Fullbright_2.Size = UDim2.new(0, 207, 0, 41)
+Fullbright_2.Font = Enum.Font.GothamBlack
+Fullbright_2.Text = "Chat Logs"
+Fullbright_2.TextColor3 = Color3.new(1, 1, 1)
+Fullbright_2.TextSize = 20
+Fullbright_2.TextXAlignment = Enum.TextXAlignment.Left
+
+
+Desc_13.Name = "Desc"
+Desc_13.Parent = Fullbright_2
+Desc_13.BackgroundColor3 = Color3.new(1, 1, 1)
+Desc_13.BackgroundTransparency = 1
+Desc_13.Position = UDim2.new(0, 0, 0.634146333, 0)
+Desc_13.Size = UDim2.new(0, 233, 0, 15)
+Desc_13.Font = Enum.Font.GothamBlack
+Desc_13.Text = "See What Players Saying\n"
+Desc_13.TextColor3 = Color3.new(0.639216, 0.639216, 0.639216)
+Desc_13.TextSize = 14
+Desc_13.TextWrapped = true
+Desc_13.TextXAlignment = Enum.TextXAlignment.Left
+
+ComingSoon2_2.Name = "Pay 350 robux for this feature"
+ComingSoon2_2.Parent = ToggleFrame
+ComingSoon2_2.BackgroundColor3 = Color3.new(1, 0, 0)
+ComingSoon2_2.Position = UDim2.new(0.244301349, 0, 0.945516109, 0)
+ComingSoon2_2.Size = UDim2.new(0, 35, 0, 35)
+ComingSoon2_2.Font = Enum.Font.SourceSans
+ComingSoon2_2.Text = ""
+ComingSoon2_2.TextColor3 = Color3.new(0, 0, 0)
+ComingSoon2_2.TextSize = 14
+local insertCredit55 = Instance.new("UICorner", ComingSoon2_2)
+insertCredit.CornerRadius = UDim.new(0,4)
+
+ComingSoon1.Name = "Anti Ban"
+ComingSoon1.Parent = CheatsFrame
+ComingSoon1.BackgroundColor3 = Color3.new(0.309804, 0.309804, 0.309804)
+ComingSoon1.BackgroundTransparency = 1
+ComingSoon1.BorderSizePixel = 0
+ComingSoon1.Position = UDim2.new(0.237785012, 0, 0.363092124, 0)
+ComingSoon1.Size = UDim2.new(0, 207, 0, 41)
+ComingSoon1.Font = Enum.Font.GothamBlack
+ComingSoon1.Text = "Pay 350 robux for this feature"
+ComingSoon1.TextColor3 = Color3.new(1, 1, 1)
+ComingSoon1.TextSize = 20
+ComingSoon1.TextXAlignment = Enum.TextXAlignment.Left
+
+ComingSoon2.Name = "Pay 350 robux for this feature"
+ComingSoon2.Parent = CheatsFrame
+ComingSoon2.BackgroundColor3 = Color3.new(0.309804, 0.309804, 0.309804)
+ComingSoon2.BackgroundTransparency = 1
+ComingSoon2.BorderSizePixel = 0
+ComingSoon2.Position = UDim2.new(0.237785012, 0, 0.445092142, 0)
+ComingSoon2.Size = UDim2.new(0, 207, 0, 41)
+ComingSoon2.Font = Enum.Font.GothamBlack
+ComingSoon2.Text = "God Mode"
+ComingSoon2.TextColor3 = Color3.new(1, 1, 1)
+ComingSoon2.TextSize = 20
+ComingSoon2.TextXAlignment = Enum.TextXAlignment.Left
+
+TextButton.Parent = Title
+TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.BackgroundTransparency = 1.000
+TextButton.Position = UDim2.new(0.879478812, 0, 0, 0)
+TextButton.Size = UDim2.new(0, 36, 0, 21)
+TextButton.Font = Enum.Font.GothamBlack
+TextButton.Text = "X"
+TextButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+TextButton.TextScaled = true
+TextButton.TextSize = 14.000
+TextButton.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
+TextButton.TextWrapped = true
+TextButton.MouseButton1Click:Connect(function()
+	MainFrame.Visible = false
+end)
+
+Credits.Name = "Credits"
+Credits.Parent = MainFrame
+Credits.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Credits.BackgroundTransparency = 1.000
+Credits.Position = UDim2.new(0, 0, 0.130193904, 0)
+Credits.Size = UDim2.new(0, 307, 0, 289)
+Credits.Visible = false
+
+CreditOne.Name = "CreditOne"
+CreditOne.Parent = Credits
+CreditOne.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne.BackgroundTransparency = 1.000
+CreditOne.Position = UDim2.new(0, 0, 0.0795847774, 0)
+CreditOne.Size = UDim2.new(0, 307, 0, 50)
+CreditOne.Font = Enum.Font.GothamBlack
+CreditOne.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne.TextSize = 20.000
+CreditOne.TextXAlignment = Enum.TextXAlignment.Left
+CreditOne.Text = CreditsTable[1]
+
+CreditOne_2.Name = "CreditOne"
+CreditOne_2.Parent = Credits
+CreditOne_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_2.BackgroundTransparency = 1.000
+CreditOne_2.Position = UDim2.new(0, 0, 0.235294119, 0)
+CreditOne_2.Size = UDim2.new(0, 307, 0, 50)
+CreditOne_2.Font = Enum.Font.GothamBlack
+CreditOne_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_2.TextSize = 20.000
+CreditOne_2.TextXAlignment = Enum.TextXAlignment.Left
+CreditOne_2.Text = CreditsTable[2]
+
+Desc_10.Name = "Desc"
+Desc_10.Parent = ComingSoon1
+Desc_10.BackgroundColor3 = Color3.new(1, 1, 1)
+Desc_10.BackgroundTransparency = 1
+Desc_10.Position = UDim2.new(0, 0, 0.634146333, 0)
+Desc_10.Size = UDim2.new(0, 233, 0, 15)
+Desc_10.Font = Enum.Font.GothamBlack
+Desc_10.Text = "No Fall Damage"
+Desc_10.TextColor3 = Color3.new(0.639216, 0.639216, 0.639216)
+Desc_10.TextSize = 14
+Desc_10.TextWrapped = true
+Desc_10.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_11.Name = "Desc"
+Desc_11.Parent = ComingSoon2
+Desc_11.BackgroundColor3 = Color3.new(1, 1, 1)
+Desc_11.BackgroundTransparency = 1
+Desc_11.Position = UDim2.new(0, 0, 0.634146333, 0)
+Desc_11.Size = UDim2.new(0, 233, 0, 15)
+Desc_11.Font = Enum.Font.GothamBlack
+Desc_11.Text = "Coming Soon"
+Desc_11.TextColor3 = Color3.new(0.639216, 0.639216, 0.639216)
+Desc_11.TextSize = 14
+Desc_11.TextWrapped = true
+Desc_11.TextXAlignment = Enum.TextXAlignment.Left
+
+CreditOne_3.Name = "CreditOne"
+CreditOne_3.Parent = Credits
+CreditOne_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_3.BackgroundTransparency = 1.000
+CreditOne_3.Position = UDim2.new(0, 0, 0.373702407, 0)
+CreditOne_3.Size = UDim2.new(0, 307, 0, 50)
+CreditOne_3.Font = Enum.Font.GothamBlack
+CreditOne_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_3.TextSize = 20.000
+CreditOne_3.TextXAlignment = Enum.TextXAlignment.Left
+CreditOne_3.Text = CreditsTable[3]
+
+CreditOne_4.Name = "CreditOne"
+CreditOne_4.Parent = Credits
+CreditOne_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_4.BackgroundTransparency = 1.000
+CreditOne_4.Position = UDim2.new(0, 0, 0.546712756, 0)
+CreditOne_4.Size = UDim2.new(0, 307, 0, 50)
+CreditOne_4.Font = Enum.Font.GothamBlack
+CreditOne_4.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditOne_4.TextSize = 20.000
+CreditOne_4.TextXAlignment = Enum.TextXAlignment.Left
+CreditOne_4.Text = CreditsTable[4]
+
+
+AllCheats.Name = "AllCheats"
+AllCheats.AutomaticCanvasSize = Enum.AutomaticSize.None
+AllCheats.Parent = MainFrame
+AllCheats.Active = true
+AllCheats.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+AllCheats.BackgroundTransparency = 1.000
+AllCheats.Position = UDim2.new(0, 0, 0.130193904, 0)
+AllCheats.Size = UDim2.new(0, 307, 0, 314)
+AllCheats.CanvasSize = UDim2.new(0, 0, 4, 0)
+AllCheats.ScrollBarThickness = 6
+
+CheatsFrame.Name = "CheatsFrame"
+CheatsFrame.Parent = AllCheats
+CheatsFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CheatsFrame.BackgroundTransparency = 1.000
+CheatsFrame.BorderSizePixel = 2
+CheatsFrame.Position = UDim2.new(0, 0, 0.188365653, 0)
+CheatsFrame.Size = UDim2.new(0, 307, 0, 500)
+
+Infstamina.Name = "Infstamina "
+Infstamina.Parent = CheatsFrame
+Infstamina.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+Infstamina.BackgroundTransparency = 1.000
+Infstamina.BorderSizePixel = 0
+Infstamina.Position = UDim2.new(0.237785012, 0, -0.518020511, 0)
+Infstamina.Size = UDim2.new(0, 207, 0, 41)
+Infstamina.Font = Enum.Font.GothamBlack
+Infstamina.Text = "Infinite Stamina"
+Infstamina.TextColor3 = Color3.fromRGB(255, 255, 255)
+Infstamina.TextSize = 20.000
+Infstamina.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc.Name = "Desc"
+Desc.Parent = Infstamina
+Desc.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc.BackgroundTransparency = 1.000
+Desc.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc.Size = UDim2.new(0, 233, 0, 15)
+Desc.Font = Enum.Font.GothamBlack
+Desc.Text = "Works With Mele's & Run"
+Desc.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc.TextSize = 14.000
+Desc.TextWrapped = true
+Desc.TextXAlignment = Enum.TextXAlignment.Left
+
+ESP.Name = "ESP"
+ESP.Parent = CheatsFrame
+ESP.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+ESP.BackgroundTransparency = 1.000
+ESP.BorderSizePixel = 0
+ESP.Position = UDim2.new(0.237784997, 0, -0.417610943, 0)
+ESP.Size = UDim2.new(0, 207, 0, 41)
+ESP.Font = Enum.Font.GothamBlack
+ESP.Text = "ESP"
+ESP.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESP.TextSize = 20.000
+ESP.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_2.Name = "Desc"
+Desc_2.Parent = ESP
+Desc_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_2.BackgroundTransparency = 1.000
+Desc_2.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_2.Size = UDim2.new(0, 233, 0, 15)
+Desc_2.Font = Enum.Font.GothamBlack
+Desc_2.Text = "Track All Players In Game"
+Desc_2.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_2.TextSize = 14.000
+Desc_2.TextWrapped = true
+Desc_2.TextXAlignment = Enum.TextXAlignment.Left
+
+Speed.Name = "Speed"
+Speed.Parent = CheatsFrame
+Speed.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+Speed.BackgroundTransparency = 1.000
+Speed.BorderSizePixel = 0
+Speed.Position = UDim2.new(0.237784997, 0, -0.318375468, 0)
+Speed.Size = UDim2.new(0, 207, 0, 41)
+Speed.Font = Enum.Font.GothamBlack
+Speed.Text = "Speed"
+Speed.TextColor3 = Color3.fromRGB(255, 255, 255)
+Speed.TextSize = 20.000
+Speed.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_3.Name = "Desc"
+Desc_3.Parent = Speed
+Desc_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_3.BackgroundTransparency = 1.000
+Desc_3.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_3.Size = UDim2.new(0, 233, 0, 15)
+Desc_3.Font = Enum.Font.GothamBlack
+Desc_3.Text = "Increase Player Speed"
+Desc_3.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_3.TextSize = 14.000
+Desc_3.TextWrapped = true
+Desc_3.TextXAlignment = Enum.TextXAlignment.Left
+
+FastPickup.Name = "FastPickup"
+FastPickup.Parent = CheatsFrame
+FastPickup.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+FastPickup.BackgroundTransparency = 1.000
+FastPickup.BorderSizePixel = 0
+FastPickup.Position = UDim2.new(0.237784997, 0, -0.219139978, 0)
+FastPickup.Size = UDim2.new(0, 207, 0, 41)
+FastPickup.Font = Enum.Font.GothamBlack
+FastPickup.Text = "Fast Pickup"
+FastPickup.TextColor3 = Color3.fromRGB(255, 255, 255)
+FastPickup.TextSize = 20.000
+FastPickup.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_4.Name = "Desc"
+Desc_4.Parent = FastPickup
+Desc_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_4.BackgroundTransparency = 1.000
+Desc_4.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_4.Size = UDim2.new(0, 233, 0, 15)
+Desc_4.Font = Enum.Font.GothamBlack
+Desc_4.Text = "No CoolDown For Picking Items"
+Desc_4.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_4.TextSize = 14.000
+Desc_4.TextWrapped = true
+Desc_4.TextXAlignment = Enum.TextXAlignment.Left
+
+NoRecoil.Name = "NoRecoil"
+NoRecoil.Parent = CheatsFrame
+NoRecoil.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+NoRecoil.BackgroundTransparency = 1.000
+NoRecoil.BorderSizePixel = 0
+NoRecoil.Position = UDim2.new(0.237784997, 0, -0.12073043, 0)
+NoRecoil.Size = UDim2.new(0, 207, 0, 41)
+NoRecoil.Font = Enum.Font.GothamBlack
+NoRecoil.Text = "No Recoil"
+NoRecoil.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoRecoil.TextSize = 20.000
+NoRecoil.TextXAlignment = Enum.TextXAlignment.Left
+
+
+
+Desc_5.Name = "Desc"
+Desc_5.Parent = NoRecoil
+Desc_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_5.BackgroundTransparency = 1.000
+Desc_5.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_5.Size = UDim2.new(0, 233, 0, 15)
+Desc_5.Font = Enum.Font.GothamBlack
+Desc_5.Text = "No Recoil On Guns"
+Desc_5.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_5.TextSize = 14.000
+Desc_5.TextWrapped = true
+Desc_5.TextXAlignment = Enum.TextXAlignment.Left
+
+ESP_2.Name = "ESP"
+ESP_2.Parent = CheatsFrame
+ESP_2.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+ESP_2.BackgroundTransparency = 1.000
+ESP_2.BorderSizePixel = 0
+ESP_2.Position = UDim2.new(0.237785012, 0, -0.0189078748, 0)
+ESP_2.Size = UDim2.new(0, 207, 0, 41)
+ESP_2.Font = Enum.Font.GothamBlack
+ESP_2.Text = "HBE"
+ESP_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESP_2.TextSize = 20.000
+ESP_2.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_6.Name = "Desc"
+Desc_6.Parent = ESP_2
+Desc_6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_6.BackgroundTransparency = 1.000
+Desc_6.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_6.Size = UDim2.new(0, 233, 0, 15)
+Desc_6.Font = Enum.Font.GothamBlack
+Desc_6.Text = "Head Guns & Mele Press T"
+Desc_6.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_6.TextSize = 14.000
+Desc_6.TextWrapped = true
+Desc_6.TextXAlignment = Enum.TextXAlignment.Left
+
+ESP_3.Name = "ESP"
+ESP_3.Parent = CheatsFrame
+ESP_3.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+ESP_3.BackgroundTransparency = 1.000
+ESP_3.BorderSizePixel = 0
+ESP_3.Position = UDim2.new(0.237785012, 0, 0.0810921192, 0)
+ESP_3.Size = UDim2.new(0, 207, 0, 41)
+ESP_3.Font = Enum.Font.GothamBlack
+ESP_3.Text = "Scrap ESP"
+ESP_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESP_3.TextSize = 20.000
+ESP_3.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_7.Name = "Desc"
+Desc_7.Parent = ESP_3
+Desc_7.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_7.BackgroundTransparency = 1.000
+Desc_7.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_7.Size = UDim2.new(0, 233, 0, 15)
+Desc_7.Font = Enum.Font.GothamBlack
+Desc_7.Text = "Scrap Piles ESP In The Map"
+Desc_7.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_7.TextSize = 14.000
+Desc_7.TextWrapped = true
+Desc_7.TextXAlignment = Enum.TextXAlignment.Left
+
+ESP_4.Name = "ESP"
+ESP_4.Parent = CheatsFrame
+ESP_4.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+ESP_4.BackgroundTransparency = 1.000
+ESP_4.BorderSizePixel = 0
+ESP_4.Position = UDim2.new(0.237785012, 0, 0.181092113, 0)
+ESP_4.Size = UDim2.new(0, 207, 0, 41)
+ESP_4.Font = Enum.Font.GothamBlack
+ESP_4.Text = "Safe ESP"
+ESP_4.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESP_4.TextSize = 20.000
+ESP_4.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_8.Name = "Desc"
+Desc_8.Parent = ESP_4
+Desc_8.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_8.BackgroundTransparency = 1.000
+Desc_8.Position = UDim2.new(0, 0, 0.853658557, 0)
+Desc_8.Size = UDim2.new(0, 233, 0, 15)
+Desc_8.Font = Enum.Font.GothamBlack
+Desc_8.Text = "Vault ESP In The Map"
+Desc_8.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_8.TextSize = 14.000
+Desc_8.TextWrapped = true
+Desc_8.TextXAlignment = Enum.TextXAlignment.Left
+
+PlayerCashESP.Name = "PlayerCashESP"
+PlayerCashESP.Parent = CheatsFrame
+PlayerCashESP.BackgroundColor3 = Color3.fromRGB(79, 79, 79)
+PlayerCashESP.BackgroundTransparency = 1.000
+PlayerCashESP.BorderSizePixel = 0
+PlayerCashESP.Position = UDim2.new(0.237785012, 0, 0.281092107, 0)
+PlayerCashESP.Size = UDim2.new(0, 207, 0, 41)
+PlayerCashESP.Font = Enum.Font.GothamBlack
+PlayerCashESP.Text = "Player Item ESP"
+PlayerCashESP.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerCashESP.TextSize = 20.000
+PlayerCashESP.TextXAlignment = Enum.TextXAlignment.Left
+
+Desc_9.Name = "Desc"
+Desc_9.Parent = PlayerCashESP
+Desc_9.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Desc_9.BackgroundTransparency = 1.000
+Desc_9.Position = UDim2.new(0, 0, 0.634146333, 0)
+Desc_9.Size = UDim2.new(0, 233, 0, 15)
+Desc_9.Font = Enum.Font.GothamBlack
+Desc_9.Text = "Players Item Carrying"
+Desc_9.TextColor3 = Color3.fromRGB(163, 163, 163)
+Desc_9.TextSize = 14.000
+Desc_9.TextWrapped = true
+Desc_9.TextXAlignment = Enum.TextXAlignment.Left
+
+ToggleFrame.Name = "ToggleFrame"
+ToggleFrame.Parent = AllCheats
+ToggleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ToggleFrame.BackgroundTransparency = 1.000
+ToggleFrame.BorderSizePixel = 2
+ToggleFrame.Position = UDim2.new(0, 0, 0.141274244, 0)
+ToggleFrame.Size = UDim2.new(0, 73, 0, 310)
+
+Infstamina_2.Name = "Infstamina"
+Infstamina_2.Parent = ToggleFrame
+Infstamina_2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Infstamina_2.Position = UDim2.new(0.244301349, 0, -0.609129071, 0)
+Infstamina_2.Size = UDim2.new(0, 35, 0, 35)
+Infstamina_2.Font = Enum.Font.SourceSans
+Infstamina_2.Text = ""
+Infstamina_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+Infstamina_2.TextSize = 14.000
+local insert = Instance.new("UICorner", Infstamina_2)
+insert.CornerRadius = UDim.new(0,4)
+
+ESP_5.Name = "ESP"
+ESP_5.Parent = ToggleFrame
+ESP_5.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ESP_5.Position = UDim2.new(0.244301349, 0, -0.444806457, 0)
+ESP_5.Size = UDim2.new(0, 35, 0, 35)
+ESP_5.Font = Enum.Font.SourceSans
+ESP_5.Text = ""
+ESP_5.TextColor3 = Color3.fromRGB(0, 0, 0)
+ESP_5.TextSize = 14.000
+local insert2 = Instance.new("UICorner", ESP_5)
+insert2.CornerRadius = UDim.new(0,4)
+
+Speed_2.Name = "Speed"
+Speed_2.Parent = ToggleFrame
+Speed_2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+Speed_2.Position = UDim2.new(0.244301349, 0, -0.286741972, 0)
+Speed_2.Size = UDim2.new(0, 35, 0, 35)
+Speed_2.Font = Enum.Font.SourceSans
+Speed_2.Text = ""
+Speed_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+Speed_2.TextSize = 14.000
+local insert3 = Instance.new("UICorner", Speed_2)
+insert3.CornerRadius = UDim.new(0,4)
+
+FastPickup_2.Name = "FastPickup"
+FastPickup_2.Parent = ToggleFrame
+FastPickup_2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+FastPickup_2.Position = UDim2.new(0.244301349, 0, -0.125451654, 0)
+FastPickup_2.Size = UDim2.new(0, 35, 0, 35)
+FastPickup_2.Font = Enum.Font.SourceSans
+FastPickup_2.Text = ""
+FastPickup_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+FastPickup_2.TextSize = 14.000
+local insert4 = Instance.new("UICorner", FastPickup_2)
+insert4.CornerRadius = UDim.new(0,4)
+
+NoRecoil_2.Name = "NoRecoil"
+NoRecoil_2.Parent = ToggleFrame
+NoRecoil_2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+NoRecoil_2.Position = UDim2.new(0.244301349, 0, 0.0326128677, 0)
+NoRecoil_2.Size = UDim2.new(0, 35, 0, 35)
+NoRecoil_2.Font = Enum.Font.SourceSans
+NoRecoil_2.Text = ""
+NoRecoil_2.TextColor3 = Color3.fromRGB(0, 0, 0)
+NoRecoil_2.TextSize = 14.000
+local insert5 = Instance.new("UICorner", NoRecoil_2)
+insert5.CornerRadius = UDim.new(0,4)
+
+HBE.Name = "HBE"
+HBE.Parent = ToggleFrame
+HBE.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+HBE.Position = UDim2.new(0.244301349, 0, 0.197129026, 0)
+HBE.Size = UDim2.new(0, 35, 0, 35)
+HBE.Font = Enum.Font.SourceSans
+HBE.Text = ""
+HBE.TextColor3 = Color3.fromRGB(0, 0, 0)
+HBE.TextSize = 14.000
+local insert6 = Instance.new("UICorner", HBE)
+insert6.CornerRadius = UDim.new(0,4)
+
+ScrapESP.Name = "ScrapESP"
+ScrapESP.Parent = ToggleFrame
+ScrapESP.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ScrapESP.Position = UDim2.new(0.244301349, 0, 0.358419329, 0)
+ScrapESP.Size = UDim2.new(0, 35, 0, 35)
+ScrapESP.Font = Enum.Font.SourceSans
+ScrapESP.Text = ""
+ScrapESP.TextColor3 = Color3.fromRGB(0, 0, 0)
+ScrapESP.TextSize = 14.000
+local insert7 = Instance.new("UICorner", ScrapESP)
+insert7.CornerRadius = UDim.new(0,4)
+
+SafeESP.Name = "SafeESP"
+SafeESP.Parent = ToggleFrame
+SafeESP.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+SafeESP.Position = UDim2.new(0.244301349, 0, 0.519709647, 0)
+SafeESP.Size = UDim2.new(0, 35, 0, 35)
+SafeESP.Font = Enum.Font.SourceSans
+SafeESP.Text = ""
+SafeESP.TextColor3 = Color3.fromRGB(0, 0, 0)
+SafeESP.TextSize = 14.000
+local insert8 = Instance.new("UICorner", SafeESP)
+insert8.CornerRadius = UDim.new(0,4)
+
+cashESP.Name = "SafeESP"
+cashESP.Parent = ToggleFrame
+cashESP.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+cashESP.Position = UDim2.new(0.244301349, 0, 0.680999994, 0)
+cashESP.Size = UDim2.new(0, 35, 0, 35)
+cashESP.Font = Enum.Font.SourceSans
+cashESP.Text = ""
+cashESP.TextColor3 = Color3.fromRGB(0, 0, 0)
+cashESP.TextSize = 14.000
+local insert9 = Instance.new("UICorner", cashESP)
+insert9.CornerRadius = UDim.new(0,4)
+
+TextButton_2.Parent = Criminality
+TextButton_2.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TextButton_2.Position = UDim2.new(0.928086817, 0, 0.531788826, 0)
+TextButton_2.Size = UDim2.new(0, 106, 0, 25)
+TextButton_2.Font = Enum.Font.GothamBlack
+TextButton_2.Text = "Open"
+TextButton_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextButton_2.TextSize = 14.000
+TextButton_2.Active = true
+TextButton_2.Draggable = true
+TextButton_2.MouseButton1Click:Connect(function()
+	if MainFrame.Visible == true then
+		MainFrame.Visible = false
+	elseif MainFrame.Visible == false then
+		MainFrame.Visible = true
+	end
+end)
+
+if table.find(whitelist, player.UserId) then
+	print("Niggus")
+else
+	player:Kick("Not Whitelist")
+end
+
+function round(num, numDecimalPlaces)
+  local mult = 10^(numDecimalPlaces or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
+
+local walkspeedVal = nil
+while not walkspeedVal do
+for i, v in next, getnilinstances() do
+    if(v:IsA("NumberValue") and LPlayer.Character and LPlayer.Character:FindFirstChild("Humanoid"))then
+        if(round(v.Value,4)==round(LPlayer.Character.Humanoid.WalkSpeed,4))then
+            walkspeedVal = v
+        end
+    end
+end
+wait(0.001)
+end
+
+_G.wspeed = 60
+
+local mt = getrawmetatable(game)
+local oIndex = mt.__index
+local oNIndex = mt.__newindex
+
+setreadonly(mt,false)
+
+mt.__index = newcclosure(function(tab,key)
+    if(not checkcaller() and tab:IsA("Part") and key == "Size")then
+        if(oIndex(tab,"Name") == "Head")then
+            return DefHeadSize
+        end
+    end
+
+    if(checkcaller() and key =="isSelected" and tab:IsA("TextButton"))then
+        return (oIndex(tab,"BackgroundColor3") == Color3.new(0,1,0))
+    end
+    if(walkspeedVal and _G.lHumanoid and not checkcaller() and tab==_G.lHumanoid and key =="WalkSpeed")then
+        return walkspeedVal.Value
+    end
+    if(_G.noRecoil and not checkcaller() and tostring(tab) == "AimNum" and key=="Value")then
+        for i, v in next, getupvalues(4) do
+            if(type(v)=="table" and rawget(v,"AimSettings"))then
+                return math.huge*0
+            end
+        end
+    end
+    
+
+
+return oIndex(tab,key)    
+end)
+
+mt.__newindex = newcclosure(function(tab,key,val)
+    if(_G.doSpeed and _G.lHumanoid and not checkcaller() and tab==_G.lHumanoid and key =="WalkSpeed")then
+        val = _G.wspeed
+    end
+    
+    if(_G.fullBright and tab==game.Lighting and key=="Ambient")then
+        val = Color3.new(0.9,0.9,0.9)
+    end
+    
+    return oNIndex(tab,key,val)    
+end)
+
+local lastRender = os.clock()
+game:GetService("RunService").RenderStepped:Connect(function()
+if not ((os.clock()-lastRender)>=0.004)then return end
+lastRender = os.clock()
+NameAmount2=0
+for i, v in next, game.Players:GetPlayers()do
+if(v~=LPlayer and v.Character and v.Character:FindFirstChild("Head")and v.Character:FindFirstChild("HumanoidRootPart") and LPlayer.Character and LPlayer.Character:FindFirstChild("HumanoidRootPart"))then
+    if(HBE.isSelected and v.Character:FindFirstChild("Head").Size~=_G.Size)then
+        v.Character.Head.Size=_G.Size
+        v.Character.Head.Transparency = 0.5
+    elseif(not HBE.isSelected and v.Character:FindFirstChild("Head").Size==_G.Size)then
+        v.Character.Head.Size=DefHeadSize
+        v.Character.Head.Transparency = 0
+    end
+    
+    if(ESP_5.isSelected or cashESP.isSelected)then
+        NameAmount2=NameAmount2+1;
+        if(not names[NameAmount2])then
+            names[NameAmount2] =  Drawing.new("Text") 
+            names[NameAmount2].Size = 20
+            names[NameAmount2].Center = true
+            names[NameAmount2].Position = Vector2.new(0,0)
+            names[NameAmount2].Visible = false
+            names[NameAmount2].Color = Color3.new(1,1,1)
+            NameAmount = NameAmount+1
+        end
+        
+        local wtsLoc, onScreen = cam:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+        if(onScreen)then
+            local Distance = (v.Character.HumanoidRootPart.Position-LPlayer.Character.HumanoidRootPart.Position).Magnitude
+            names[NameAmount2].Visible = true
+            names[NameAmount2].Position = Vector2.new(wtsLoc.X,wtsLoc.Y)
+            local item = v.Character:FindFirstChildOfClass("Tool")
+            local cashV = item and " [".. item.Name .."]" or ""
+            names[NameAmount2].Text = (cashESP.isSelected and not ESP_5.isSelected) and cashV or ( (not cashESP.isSelected and ESP_5.isSelected) and v.Name or (( cashESP.isSelected and ESP_5.isSelected) and v.Name..cashV or ""))
+            names[NameAmount2].Size = _G.scallingFactor/(Distance+100)
+        else
+            names[NameAmount2].Visible = false
+        end
+    end
+    end
+end
+TrashAmount2= 0
+if(ScrapESP.isSelected and LPlayer.Character and LPlayer.Character:FindFirstChild("HumanoidRootPart"))then
+for i, v in next, workspace.Filter.SpawnedPiles:GetChildren() do
+local obj = v:FindFirstChildOfClass("MeshPart")
+if(obj)then
+    TrashAmount2=TrashAmount2+1;
+    if(not trash[TrashAmount2])then
+        trash[TrashAmount2] =  Drawing.new("Text") 
+        trash[TrashAmount2].Size = 20
+        trash[TrashAmount2].Center = true
+        trash[TrashAmount2].Position = Vector2.new(0,0)
+        trash[TrashAmount2].Visible = false
+        trash[TrashAmount2].Color = Color3.new(0,1,0)
+        TrashAmount = TrashAmount+1
+    end
+    
+    local wtsLoc, onScreen = cam:WorldToViewportPoint(obj.CFrame.p)
+    if(onScreen)then
+        local Distance = (obj.Position-LPlayer.Character.HumanoidRootPart.Position).Magnitude
+        trash[TrashAmount2].Visible = true
+        trash[TrashAmount2].Position = Vector2.new(wtsLoc.X,wtsLoc.Y)
+        trash[TrashAmount2].Text = "Trash"
+        trash[TrashAmount2].Size = _G.scallingFactor/(Distance+100)
+    else
+        trash[TrashAmount2].Visible = false
+    end
+end
+end
+end
+
+CashRegisterAmount2 = 0
+
+if(SafeESP.isSelected and LPlayer.Character and LPlayer.Character:FindFirstChild("HumanoidRootPart"))then
+    for i, v in next, workspace:WaitForChild("Map"):WaitForChild("BredMakurz"):GetChildren()do
+        CashRegisterAmount2=CashRegisterAmount2+1
+        if(not CashR[CashRegisterAmount2])then
+            CashR[CashRegisterAmount2] =  Drawing.new("Text") 
+            CashR[CashRegisterAmount2].Size = 20
+            CashR[CashRegisterAmount2].Center = true
+            CashR[CashRegisterAmount2].Position = Vector2.new(0,0)
+            CashR[CashRegisterAmount2].Visible = false
+            CashR[CashRegisterAmount2].Color = Color3.new(1,1,1)
+            CashRegisterAmount = CashRegisterAmount+1
+        end
+        
+        local wtsLoc, onScreen = cam:WorldToViewportPoint(v.MainPart.Position)
+        if(onScreen and v:FindFirstChild("Values"))then
+            local Distance = (v.MainPart.Position-LPlayer.Character.HumanoidRootPart.Position).Magnitude
+            CashR[CashRegisterAmount2].Visible = true
+            CashR[CashRegisterAmount2].Position = Vector2.new(wtsLoc.X,wtsLoc.Y)
+            CashR[CashRegisterAmount2].Text = (string.sub(v.Name,1,#"Register")=="Register" and "REG" or (string.sub(v.Name,1,#"SmallSafe")=="SmallSafe" and "sSafe" or (string.sub(v.Name,1,#"MediumSafe")=="MediumSafe" and "MedSafe" or v.Name)))
+            CashR[CashRegisterAmount2].Color = (v.Values.Broken.Value and Color3.new(1,0,0) or Color3.new(0,1,0))
+            CashR[CashRegisterAmount2].Size = _G.scallingFactor/(Distance+100)
+        else
+            CashR[CashRegisterAmount2].Visible = false
+        end
+    end
+end
+
+if(NameAmount2<NameAmount)then
+    for i=1,NameAmount-NameAmount2,1 do
+        names[NameAmount2+i].Visible = false
+    end
+end
+
+if(TrashAmount2<TrashAmount)then
+    for i=1,TrashAmount-TrashAmount2,1 do
+        trash[TrashAmount2+i].Visible = false
+    end
+end
+
+if(CashRegisterAmount2<CashRegisterAmount)then
+    for i=1,CashRegisterAmount-CashRegisterAmount2,1 do
+        CashR[CashRegisterAmount2+i].Visible = false
+    end
+end
+
+end)
+
+local oldFunc
+oldFunc = hookfunction(getupvalue(getrenv()._G.S_Take,2),function(v1,...)
+if(_G.infStamina)then
+    v1 = 0
+end
+return oldFunc(v1,...)
+end)
+
+local defaultAimNum = {}
+
+local oldBrightness = game.Lighting.Ambient
+
+local camera = workspace.CurrentCamera
+
+local screenGui = Instance.new("ScreenGui")
+syn.protect_gui(screenGui)
+screenGui.Parent = game.CoreGui
+
+_G.mainFrame = Instance.new("Frame")
+_G.mainFrame.Size = UDim2.new(0,600,0,300)
+_G.mainFrame.Position = UDim2.new(0,camera.ViewportSize.X-_G.mainFrame.Size.X.Offset,0,camera.ViewportSize.Y-_G.mainFrame.Size.Y.Offset)
+_G.mainFrame.BackgroundColor3 = Color3.new(0.1,0.1,0.1)
+_G.mainFrame.Transparency = 0.3
+_G.mainFrame.Parent = screenGui
+_G.mainFrame.Transparency = 0.3
+_G.mainFrame.Visible = true
+_G.mainFrame.Active = true
+
+_G.moveFrame = Instance.new("Frame")
+_G.moveFrame.Parent = _G.mainFrame
+_G.moveFrame.Size = UDim2.new(1,0,0.1)
+_G.moveFrame.BackgroundColor3 = Color3.new(0.1,0.1,0.1)
+
+_G.textLabels = {}
+
+local function chatted(plr, msg)
+    local index = #_G.textLabels+1
+    local newPos = (_G.textLabels[index-1] and Vector2.new(_G.textLabels[index-1].Position.X.Offset,_G.textLabels[index-1].Position.Y.Offset+_G.textLabels[index-1].TextBounds.Y) or Vector2.new(5,5)) -- UDim2.new(0,5,0.1,5)
+    
+    local selectionFrame = Instance.new("Frame")
+    selectionFrame.BorderSizePixel =0
+    selectionFrame.BackgroundColor3 = Color3.new()
+    selectionFrame.BackgroundTransparency =1
+    selectionFrame.Visible = true
+    
+    _G.textLabels[index] = Instance.new("TextLabel")
+    _G.textLabels[index].Position = UDim2.new(0,newPos.X,0.1,newPos.Y)
+    _G.textLabels[index].Text = "["..plr.Name.."]: "..msg
+    _G.textLabels[index].Parent = _G.mainFrame
+    _G.textLabels[index].TextXAlignment = Enum.TextXAlignment.Left
+    _G.textLabels[index].TextYAlignment = Enum.TextYAlignment.Top
+    _G.textLabels[index].TextColor3 = Color3.new(1,1,1)
+    _G.textLabels[index].BackgroundTransparency = 1
+    _G.textLabels[index].TextSize = 10
+    _G.textLabels[index].TextWrapped = true
+    _G.textLabels[index].BorderSizePixel =0
+    _G.textLabels[index].BackgroundColor3 = Color3.new()
+    _G.textLabels[index].Size = UDim2.new(0.9,0,1,0)
+    _G.textLabels[index].ZIndex = 10
+    
+    local relPos = _G.textLabels[index].AbsolutePosition-_G.mainFrame.AbsolutePosition
+    selectionFrame.Parent = _G.textLabels[index]
+    selectionFrame.Position = UDim2.new(0,-5,0,0)
+    selectionFrame.Size = UDim2.new(0,_G.mainFrame.AbsoluteSize.X,0,_G.textLabels[index].TextBounds.Y)
+    selectionFrame.ZIndex = 9
+    
+    selectionFrame.MouseEnter:Connect(function()
+        
+        local TInfo = TweenInfo.new(0.5,Enum.EasingStyle.Linear,Enum.EasingDirection.Out)
+        local Tween = TS:Create(selectionFrame,TInfo,{BackgroundTransparency = 0.5})
+        Tween:Play()
+    end)
+    
+    selectionFrame.MouseLeave:Connect(function()
+        
+        local TInfo = TweenInfo.new(0.5,Enum.EasingStyle.Linear,Enum.EasingDirection.Out)
+        local Tween = TS:Create(selectionFrame,TInfo,{BackgroundTransparency = 1})
+        Tween:Play()
+    end)
+    
+    local posInMenu = (_G.textLabels[index].AbsolutePosition + _G.textLabels[index].TextBounds) -_G.mainFrame.AbsolutePosition
+    if(posInMenu.Y>_G.mainFrame.AbsoluteSize.Y)then
+    local startPos = Vector2.new(5,5)
+    local nIndex = 1
+        for i =1, #_G.textLabels do
+            if (posInMenu.Y>=_G.mainFrame.AbsoluteSize.Y) then
+                posInMenu = Vector2.new(posInMenu.X, posInMenu.Y - _G.textLabels[i].TextBounds.Y)
+                _G.textLabels[i]:Destroy()
+            else
+                _G.textLabels[i].Position = UDim2.new(0,startPos.X,0.1,startPos.Y)
+                startPos = startPos+Vector2.new(0,_G.textLabels[i].TextBounds.Y)
+                _G.textLabels[nIndex] = _G.textLabels[i]
+                _G.textLabels[i] = nil
+                nIndex=nIndex+1
+            end
+        end
+    end
+end
+
+for i, v in next, game.Players:GetPlayers() do
+    v.Chatted:Connect(function(msg)
+        chatted(v,msg)
+    end)
+end
+
+game.Players.ChildAdded:Connect(function(c)
+c.Chatted:Connect(function(msg)
+    chatted(c,msg)
+end)    
+end)
+
+local isDown = false
+local LastPoint = Vector2.new()
+local LastOffset = Vector2.new()
+_G.moveFrame.InputBegan:Connect(function(vInput)
+    if(vInput.UserInputType==Enum.UserInputType.MouseButton1)then
+        LastPoint = Vector2.new(LocalMouse.X,LocalMouse.Y)
+        LastOffset = Vector2.new(_G.mainFrame.Position.X.Offset,_G.mainFrame.Position.Y.Offset)
+        isDown = true
+    end
+end)
+inputService.InputChanged:Connect(function(vInput)
+    if(vInput.UserInputType == Enum.UserInputType.MouseMovement and isDown)then
+        _G.mainFrame.Position = UDim2.new(0,LastOffset.X-(LastPoint.X-LocalMouse.X),0,LastOffset.Y-(LastPoint.Y-LocalMouse.Y))
+    end
+end)
+_G.moveFrame.InputEnded:Connect(function(vInput)
+    if(vInput.UserInputType==Enum.UserInputType.MouseButton1)then
+        isDown = false
+    end
+end)
+
+local dropCheck
+for i, v in next, getgc() do
+    if(type(v)=="function" and getinfo(v).name=="ToolDropCheck")then
+        dropCheck = v; break    
+    end
+end
+local cDropCheck
+for i, v in next, getgc() do
+    if(type(v)=="function" and getinfo(v).name=="CashDropCheck")then
+        cDropCheck = v; break    
+    end
+end
+
+local oldDropCheck
+oldDropCheck = hookfunction(dropCheck,function()
+    local outP = {oldDropCheck()}
+    if(_G.instaPickup and type(outP[1])=="table")then
+        outP[1][1][2] = 0
+    end
+    return unpack(outP)
+end)
+local oldcDropCheck
+oldcDropCheck = hookfunction(cDropCheck,function()
+    local outP = {oldcDropCheck()}
+    if(_G.instaPickup and type(outP[1])=="table")then
+        outP[1][1][2] = 0
+    end
+    return unpack(outP)
+end)
+
+local rcFunction
+while not rcFunction do
+for i, v in next, getgc(true) do
+    if(type(v)=="table" and type(rawget(v,"lol"))=="function" and getinfo(v.lol).source:find(".RCHB"))then
+        rcFunction = v.lol
+        
+    end
+end
+wait(0.01)
+end
+
+local grcFunction
+while not grcFunction do
+for i, v in next, getgc(true) do
+    if(type(v)=="table" and type(rawget(v,"OnRayHit_Sub2"))=="function")then
+        grcFunction = v.OnRayHit_Sub2
+        print("found")
+    end
+end
+wait(0.01)
+end
+
+local numberT = math.huge
+for i, v in next, getconstants(rcFunction) do
+    if(v=="Head" and type(getconstant(rcFunction,i+1))=="number" and getconstant(rcFunction,i+2)=="Left Arm")then
+        setconstant(rcFunction,i+1,numberT)
+    end
+    if(v==10)then
+        setconstant(rcFunction,i,numberT) 
+    end
+end
+
+for i, v in next, getconstants(grcFunction) do
+    if(v=="Head" and type(getconstant(grcFunction,i+1))=="number" and getconstant(grcFunction,i+2)=="Left Arm")then
+        setconstant(grcFunction,i+1,numberT)
+    end
+    if(v==10)then
+        setconstant(grcFunction,i,numberT) 
+    end
+end
+
+inputService.InputBegan:Connect(function(inp)
+    if(inp.KeyCode == Enum.KeyCode[_G.HBEKey])then
+        HBE.BackgroundColor3 = HBE.BackgroundColor3 == Color3.new(1,0,0) and Color3.new(0,1,0) or Color3.new(1,0,0)
+    end
+end)
+
+while true do
+    _G.doSpeed = Speed_2.isSelected
+    _G.lHumanoid = LPlayer.Character and LPlayer.Character:FindFirstChild("Humanoid") or nil --had to do it like this because if i do it in the hook its laggy asf
+    _G.instaPickup = FastPickup_2.isSelected
+    _G.infStamina = Infstamina_2.isSelected
+    _G.noRecoil = NoRecoil_2.isSelected
+    _G.fullBright = Fullbright_3.isSelected
+    _G.mainFrame.Visible = ChatLogger.isSelected
+    _G.noFall = ComingSoon1_2.isSelected
+    
+    wait(0.001)
+end
+	end
+end)
+
+Predator.Name = "卐 卍Crim Script卐 卍"
+Predator.Parent = BackFrame
+Predator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Predator.BackgroundTransparency = 1.000
+Predator.Position = UDim2.new(0.153284669, 0, 0.12367741, 0)
+Predator.Size = UDim2.new(0, 186, 0, 28)
+Predator.Font = Enum.Font.Ubuntu
+Predator.Text = "卐 卍Crim Script卐 卍"
+Predator.TextColor3 = Color3.fromRGB(255, 255, 255)
+Predator.TextScaled = true
+Predator.TextSize = 14.000
+Predator.TextWrapped = true
+
+Frame_2.Parent = Predator
+Frame_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame_2.Position = UDim2.new(0.231182799, 0, 0.928570867, 0)
+Frame_2.Size = UDim2.new(0, 103, 0, 2)
